@@ -37,7 +37,7 @@ jobs:
       - run:
           name: Build application Docker image
           command: |
-            docker build --cache-from=app -t app .
+            docker build --cache-from=app -t capstone .
       - run:
           name: Save Docker image layer cache
           command: |
@@ -50,20 +50,20 @@ jobs:
       - run:
           name: Build docker image
           command: |
-            docker build -t pythonapp .
+            docker build -t capstone .
       - run: 
           name: run docker 
           command: |
-            docker run -itd pythonapp
+            docker run -itd capstone
       - run:
           name: tag image 
           command: |
-            docker tag pythonapp $DOCKER_USER/pythonapp:<< pipeline.id >>
+            docker tag capstone $DOCKER_USER/capstone:<< pipeline.id >>
       - run:
           name: docker login and push image
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker push $DOCKER_USER/pythonapp:<< pipeline.id >>
+            docker push $DOCKER_USER/capstone:<< pipeline.id >>
 
 workflows:
   default:
