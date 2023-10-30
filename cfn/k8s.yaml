@@ -268,7 +268,7 @@ Resources:
               Service:
                 - eks.amazonaws.com
               AWS:
-                - arn:aws:iam::453256782086:user/admin
+                - arn:aws:iam::893944670523:user/admin
             Action: sts:AssumeRole
       ManagedPolicyArns: 
         - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
