@@ -1,0 +1,73 @@
+version: 2.1
+orbs:
+  aws-cli: circleci/aws-cli@3.1.5
+  python: circleci/python@2.1.1
+  aws-eks: circleci/aws-eks@2.2.0
+  kubernetes: circleci/kubernetes@1.3
+jobs:
+  lint:
+    executor: python/default
+    steps:
+      - checkout
+      - python/install-packages:
+          pkg-manager: pip
+      - python/install-packages:
+          pip-dependency-file: requirements.txt
+
+      - run:
+          command: |
+            pylint --disable=R,C,W1203,W1202 src/app.py
+          name: Lint code
+  build-image:
+    docker:
+      - image: docker:17.05.0-ce-git
+    steps:
+      - checkout
+      - setup_remote_docker
+      - restore_cache:
+          keys:
+            - v1-{{ .Branch }}
+          paths:
+            - /caches/app.tar
+      - run:
+          name: Load Docker image layer cache
+          command: |
+            set +o pipefail
+            docker load -i /caches/app.tar | true
+      - run:
+          name: Build application Docker image
+          command: |
+            docker build --cache-from=app -t app .
+      - run:
+          name: Save Docker image layer cache
+          command: |
+            mkdir -p /caches
+            docker save -o /caches/app.tar app
+      - save_cache:
+          key: v1-{{ .Branch }}-{{ epoch }}
+          paths:
+            - /caches/app.tar
+      - run:
+          name: Build docker image
+          command: |
+            docker build -t pythonapp .
+      - run: 
+          name: run docker 
+          command: |
+            docker run -itd pythonapp
+      - run:
+          name: tag image 
+          command: |
+            docker tag pythonapp $DOCKER_USER/pythonapp:<< pipeline.id >>
+      - run:
+          name: docker login and push image
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker push $DOCKER_USER/pythonapp:<< pipeline.id >>
+
+workflows:
+  default:
+    jobs:
+      - lint
+      - build-image:
+          requires: [lint]
