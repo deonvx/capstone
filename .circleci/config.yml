@@ -65,9 +65,35 @@ jobs:
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push $DOCKER_USER/capstone:<< pipeline.id >>
 
+  deploy-k8s:
+    docker:
+      - image: cimg/python:3.10
+    steps:
+      - checkout
+      - kubernetes/install:
+          kubectl-version: v1.22.0
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: uda-k8s
+      - run:
+          command: |
+            kubectl get nodes
+
+          name: Test cluster
+      - run:
+          name: update image tag
+          command: |
+            sed -ie "s/{tag}/<< pipeline.id >>/g" deployment/deployment.yaml
+            sed -ie "s/{image}/${DOCKER_USER}\/capstone/g" deployment/deployment.yaml
+      - run:
+          name: deploy new image tag
+          command: |
+            kubectl apply -f deployment/deployment.yaml
+
 workflows:
   default:
     jobs:
       - lint
       - build-image:
           requires: [lint]
+      - deploy-k8s:
+          requires: [build-image]
