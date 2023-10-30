@@ -95,12 +95,12 @@ jobs:
       - run:
           name: update image tag
           command: |
-            sed -ie "s/{tag}/<< pipeline.id >>/g" deployment/deployment.yaml
-            sed -ie "s/{image}/${DOCKER_USER}\/capstone/g" deployment/deployment.yaml
+            sed -ie "s/{tag}/<< pipeline.id >>/g" deployment/deployment.yml
+            sed -ie "s/{image}/${DOCKER_USER}\/capstone/g" deployment/deployment.yml
       - run:
           name: deploy new image tag
           command: |
-            kubectl apply -f deployment/deployment.yaml
+            kubectl apply -f deployment/deployment.yml
   # deploy-k8s:
   #   docker:
   #     - image: cimg/python:3.10
