@@ -12,10 +12,10 @@ spec:
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: flask-app
+        app.kubernetes.io/name: capstone
     spec:
       containers:
-      - name: flask-app
+      - name: capstone
         image: {image}:{tag}
         ports:
         - containerPort: 3000
@@ -23,10 +23,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: flask-app-serivce
+  name: capstone-serivce
 spec:
   selector:
-    app.kubernetes.io/name: flask
+    app.kubernetes.io/name: capstone
   ports:
     - protocol: TCP
       port: 8501
